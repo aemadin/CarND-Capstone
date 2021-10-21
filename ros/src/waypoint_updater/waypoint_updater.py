@@ -25,7 +25,7 @@ as well as to verify your TL classifier.
 TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
-LOOKAHEAD_WPS = 60 # Number of waypoints we will publish. You can change this number
+LOOKAHEAD_WPS = 150 # Number of waypoints we will publish. You can change this number
 
 
 class WaypointUpdater(object):
@@ -84,16 +84,19 @@ class WaypointUpdater(object):
         #if no stoplines are detected or they are not in the near car forward direction -> publish waypoints normally
         if (self.stoplines_wp_idx == -1 or (self.stoplines_wp_idx >= closest_idx+LOOKAHEAD_WPS)):
             lane.waypoints = base_waypoints
+	    rospy.loginfo("WU: publish waypoints with original velecoties %d", closest_idx+LOOKAHEAD_WPS)
         #else slow the car down    
-        else:
-            lane.waypoints = self.decelerate_wps(base_waypoints,closest_idx)
+        #else:
+        #    lane.waypoints = self.decelerate_wps(base_waypoints,closest_idx)
+	    #rospy.loginfo("WU: decelerate")
             
         self.final_waypoints_pub.publish(lane)
     
     def decelerate_wps(self,waypoints, closest_idx):  
         temp =[]
         #iterate through waypoints to decelerate velocity by setting it to consecutive values
-        #that will lead to full stop at stopline idx (-2 to be totally behind stop line)    
+        #that will lead to full stop at stopline idx (-2 to be totally behind stop line)   
+	MAX_DECEL=3 
         for i,wp in enumerate(waypoints): 
             p=Waypoint()
             p.pose=wp.pose
@@ -104,7 +107,7 @@ class WaypointUpdater(object):
                 vel=0
             #make sure calculated value is not bigger than given waypoint velocity
             p.twist.twist.linear.x = min(vel,wp.twist.twist.linear.x)
-            temp.append[p]
+            temp.append(p)
             
         return temp
             
@@ -114,7 +117,6 @@ class WaypointUpdater(object):
 
     def waypoints_cb(self, waypoints):
         self.base_waypoints = waypoints
-        print(self.base_waypoints)
         if not self.waypoints_2d:
             self.waypoints_2d = [[waypoint.pose.pose.position.x, waypoint.pose.pose.position.y] for waypoint in waypoints.waypoints]
             self.waypoint_tree = KDTree(self.waypoints_2d)
