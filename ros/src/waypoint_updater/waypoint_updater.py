@@ -86,8 +86,8 @@ class WaypointUpdater(object):
             lane.waypoints = base_waypoints
 	    rospy.loginfo("WU: publish waypoints with original velecoties %d", closest_idx+LOOKAHEAD_WPS)
         #else slow the car down    
-        #else:
-        #    lane.waypoints = self.decelerate_wps(base_waypoints,closest_idx)
+        else:
+            lane.waypoints = self.decelerate_wps(base_waypoints,closest_idx)
 	    #rospy.loginfo("WU: decelerate")
             
         self.final_waypoints_pub.publish(lane)
@@ -100,7 +100,7 @@ class WaypointUpdater(object):
         for i,wp in enumerate(waypoints): 
             p=Waypoint()
             p.pose=wp.pose
-            stop_idx= max(self.stoplines_wp_idx - closest_idx - 2,0)
+            stop_idx= max(self.stoplines_wp_idx - closest_idx - 3,0)
             dist = self.distance(waypoints, i , stop_idx)
             vel= math.sqrt(2*MAX_DECEL*dist)
             if vel < 1.:
@@ -141,8 +141,11 @@ class WaypointUpdater(object):
         dist = 0
         dl = lambda a, b: math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2  + (a.z-b.z)**2)
         for i in range(wp1, wp2+1):
-            dist += dl(waypoints[wp1].pose.pose.position, waypoints[i].pose.pose.position)
-            wp1 = i
+	    try:			
+	            dist += dl(waypoints[wp1].pose.pose.position, waypoints[i].pose.pose.position)
+        	    wp1 = i
+	    except:
+		 rospy.loginfo("WU: wp1=%d while wp2=%d",wp1,wp2)
         return dist
 
 
