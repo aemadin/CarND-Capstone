@@ -52,7 +52,7 @@ class WaypointUpdater(object):
         self.loop()
 
     def loop(self):
-        rate = rospy.Rate(50)
+        rate = rospy.Rate(10)
         while not rospy.is_shutdown():
             if self.pose and self.base_waypoints:
                 closest_waypoint_idx = self.get_closest_waypoint_id()
@@ -81,10 +81,12 @@ class WaypointUpdater(object):
         lane = Lane()
         lane.header = self.base_waypoints.header
         base_waypoints=self.base_waypoints.waypoints[closest_idx:closest_idx+LOOKAHEAD_WPS]
+	if closest_idx % 100 ==0 or(closest_idx>10750):
+		rospy.loginfo("WU: closest %d", closest_idx)
         #if no stoplines are detected or they are not in the near car forward direction -> publish waypoints normally
         if (self.stoplines_wp_idx == -1 or (self.stoplines_wp_idx >= closest_idx+LOOKAHEAD_WPS)):
             lane.waypoints = base_waypoints
-	    rospy.loginfo("WU: publish waypoints with original velecoties %d", closest_idx+LOOKAHEAD_WPS)
+	    #rospy.loginfo("WU: publish waypoints with original velecoties %d", closest_idx+LOOKAHEAD_WPS)
         #else slow the car down    
         else:
             lane.waypoints = self.decelerate_wps(base_waypoints,closest_idx)
