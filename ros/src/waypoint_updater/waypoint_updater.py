@@ -52,7 +52,7 @@ class WaypointUpdater(object):
         self.loop()
 
     def loop(self):
-        rate = rospy.Rate(10)
+        rate = rospy.Rate(50)
         while not rospy.is_shutdown():
             if self.pose and self.base_waypoints:
                 closest_waypoint_idx = self.get_closest_waypoint_id()
@@ -103,7 +103,7 @@ class WaypointUpdater(object):
             stop_idx= max(self.stoplines_wp_idx - closest_idx - 3,0)
             dist = self.distance(waypoints, i , stop_idx)
             vel= math.sqrt(2*MAX_DECEL*dist)
-            if vel < 1.:
+            if vel < 2.:
                 vel=0
             #make sure calculated value is not bigger than given waypoint velocity
             p.twist.twist.linear.x = min(vel,wp.twist.twist.linear.x)
