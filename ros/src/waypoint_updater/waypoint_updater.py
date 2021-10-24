@@ -83,7 +83,7 @@ class WaypointUpdater(object):
         lane.header = self.base_waypoints.header
         base_waypoints=self.base_waypoints.waypoints[closest_idx:closest_idx+LOOKAHEAD_WPS]
 	if closest_idx % 100 ==0 or(closest_idx>10845):
-		rospy.loginfo("WU: closest %d ,self.stoplines_wp_idx %", closest_idx,self.stoplines_wp_idx)
+		rospy.loginfo("WU: closest %d ,self.stoplines_wp_idx %d", closest_idx,self.stoplines_wp_idx)
         #if no stoplines are detected or they are not in the near car forward direction -> publish waypoints normally
         if (self.stoplines_wp_idx == -1 or (self.stoplines_wp_idx >= closest_idx+LOOKAHEAD_WPS)):
             lane.waypoints = base_waypoints
