@@ -58,7 +58,7 @@ class WaypointUpdater(object):
 		#rospy.loginfo("WU loop: position is %f %f", self.pose.pose.position.x,self.pose.pose.position.y)
                 closest_waypoint_idx = self.get_closest_waypoint_id()
                 self.publish_waypoints(closest_waypoint_idx)
-            rate.sleep
+            rate.sleep()
 
     def get_closest_waypoint_id(self):
         x =self.pose.pose.position.x
@@ -82,8 +82,8 @@ class WaypointUpdater(object):
         lane = Lane()
         lane.header = self.base_waypoints.header
         base_waypoints=self.base_waypoints.waypoints[closest_idx:closest_idx+LOOKAHEAD_WPS]
-	if closest_idx % 100 ==0 or(closest_idx>10750):
-		rospy.loginfo("WU: closest %d", closest_idx)
+	if closest_idx % 100 ==0 or(closest_idx>10845):
+		rospy.loginfo("WU: closest %d ,self.stoplines_wp_idx %", closest_idx,self.stoplines_wp_idx)
         #if no stoplines are detected or they are not in the near car forward direction -> publish waypoints normally
         if (self.stoplines_wp_idx == -1 or (self.stoplines_wp_idx >= closest_idx+LOOKAHEAD_WPS)):
             lane.waypoints = base_waypoints
